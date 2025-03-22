@@ -2,18 +2,101 @@
 
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import ChatInterface from '@/components/ChatInterface';
+import AIBackground from '@/components/AIBackground';
+import { PracticeProblem } from '@/types/problems';
 
 export default function Content() {
   const { user, isLoading, isAuthenticated, logout } = useAuth();
   const router = useRouter();
+  const [currentWeek, setCurrentWeek] = useState(1);
+  const [currentProblem, setCurrentProblem] = useState<PracticeProblem | null>({
+    id: 'placeholder',
+    title: 'Welcome to Programming Practice',
+    description: 'This is a placeholder problem while the AI integration is being set up. The actual problems will be generated based on your course materials.',
+    difficulty: 'medium',
+    category: 'introduction',
+    weekNumber: 1,
+    hints: [
+      'This is a placeholder hint',
+      'The real system will provide contextual hints based on the course material'
+    ],
+    testCases: [
+      {
+        input: 'Example input',
+        output: 'Example output'
+      }
+    ]
+  });
+  const [isLoadingProblem, setIsLoadingProblem] = useState(false);
+  const [selectedDifficulty, setSelectedDifficulty] = useState<'easy' | 'medium' | 'hard'>('medium');
+  const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
       router.replace('/');
     }
   }, [isLoading, isAuthenticated, router]);
+
+  // Commented out until S3/Knowledge Base is set up
+  /*
+  useEffect(() => {
+    async function fetchProblem() {
+      try {
+        const response = await fetch(
+          `/api/problems?week=${currentWeek}&difficulty=${selectedDifficulty}${
+            selectedTopics.length ? `&topics=${selectedTopics.join(',')}` : ''
+          }`
+        );
+        const data = await response.json();
+        if (data.problem) {
+          setCurrentProblem(data.problem);
+        }
+      } catch (error) {
+        console.error('Error fetching problem:', error);
+      }
+    }
+
+    if (isAuthenticated) {
+      fetchProblem();
+    }
+  }, [currentWeek, selectedDifficulty, selectedTopics, isAuthenticated]);
+  */
+
+  const handlePreviousWeek = () => {
+    if (currentWeek > 1) {
+      setCurrentWeek(prev => prev - 1);
+    }
+  };
+
+  const handleNextWeek = () => {
+    setCurrentWeek(prev => prev + 1);
+  };
+
+  const handleGenerateNewProblem = async () => {
+    // Commented out until S3/Knowledge Base is set up
+    /*
+    setIsLoadingProblem(true);
+    try {
+      const response = await fetch(
+        `/api/problems?week=${currentWeek}&difficulty=${selectedDifficulty}${
+          selectedTopics.length ? `&topics=${selectedTopics.join(',')}` : ''
+        }`
+      );
+      const data = await response.json();
+      if (data.problem) {
+        setCurrentProblem(data.problem);
+      }
+    } catch (error) {
+      console.error('Error generating new problem:', error);
+    } finally {
+      setIsLoadingProblem(false);
+    }
+    */
+    // For now, just show a message
+    alert('Problem generation will be available once the AI integration is set up.');
+  };
 
   if (isLoading) {
     return (
@@ -57,29 +140,90 @@ export default function Content() {
           {/* Left Panel - Coding Practice */}
           <div className="lg:col-span-2 flex flex-col">
             <div className="bg-white rounded-2xl shadow-lg p-6 flex flex-col flex-grow">
-              <h2 className="text-2xl font-bold">Practice Problem Sandbox</h2>
-              <div className="flex-grow mt-6 bg-gray-100 rounded-xl p-8 overflow-auto">
-                {/* Practice content goes here */}
-                <div className="space-y-4">
-                  <div className="animate-pulse">
-                    <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                    <div className="space-y-3 mt-4">
-                      <div className="h-4 bg-gray-200 rounded"></div>
-                      <div className="h-4 bg-gray-200 rounded w-5/6"></div>
-                    </div>
-                  </div>
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold">Practice Problem Sandbox</h2>
+                <div className="flex gap-4">
+                  <select
+                    value={selectedDifficulty}
+                    onChange={(e) => setSelectedDifficulty(e.target.value as 'easy' | 'medium' | 'hard')}
+                    className="rounded-lg border-gray-300 text-sm"
+                  >
+                    <option value="easy">Easy</option>
+                    <option value="medium">Medium</option>
+                    <option value="hard">Hard</option>
+                  </select>
+                  <button
+                    onClick={handleGenerateNewProblem}
+                    disabled={isLoadingProblem}
+                    className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50"
+                  >
+                    Generate New Problem
+                  </button>
                 </div>
+              </div>
+              <div className="flex-grow bg-gray-100 rounded-xl p-8 overflow-auto">
+                {isLoadingProblem ? (
+                  <div className="flex items-center justify-center h-full">
+                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
+                  </div>
+                ) : currentProblem ? (
+                  <div className="space-y-6">
+                    <div>
+                      <h3 className="text-xl font-semibold mb-2">{currentProblem.title}</h3>
+                      <span className="inline-block px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800">
+                        {currentProblem.difficulty}
+                      </span>
+                    </div>
+                    <div className="prose max-w-none">
+                      <p>{currentProblem.description}</p>
+                    </div>
+                    {currentProblem.hints.length > 0 && (
+                      <div className="mt-4">
+                        <h4 className="font-semibold mb-2">Hints:</h4>
+                        <ul className="list-disc list-inside space-y-2">
+                          {currentProblem.hints.map((hint, index) => (
+                            <li key={index}>{hint}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    {currentProblem.testCases && (
+                      <div className="mt-4">
+                        <h4 className="font-semibold mb-2">Test Cases:</h4>
+                        <div className="space-y-2">
+                          {currentProblem.testCases.map((testCase, index) => (
+                            <div key={index} className="bg-white p-4 rounded-lg">
+                              <div>Input: <code>{testCase.input}</code></div>
+                              <div>Expected Output: <code>{testCase.output}</code></div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="text-center text-gray-500">
+                    No problem loaded. Click "Generate New Problem" to start.
+                  </div>
+                )}
               </div>
               
               {/* Week Navigation */}
               <div className="mt-6 flex justify-center items-center gap-4 pt-4 border-t border-gray-100">
-                <button className="p-2 rounded-full hover:bg-gray-100">
+                <button 
+                  onClick={handlePreviousWeek}
+                  disabled={currentWeek === 1}
+                  className="p-2 rounded-full hover:bg-gray-100 disabled:opacity-50"
+                >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                   </svg>
                 </button>
-                <span className="text-lg font-medium">Week 1</span>
-                <button className="p-2 rounded-full hover:bg-gray-100">
+                <span className="text-lg font-medium">Week {currentWeek}</span>
+                <button 
+                  onClick={handleNextWeek}
+                  className="p-2 rounded-full hover:bg-gray-100"
+                >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
@@ -89,10 +233,13 @@ export default function Content() {
           </div>
 
           {/* Right Panel - AI Chat */}
-          <div className="lg:col-span-1 flex flex-col">
-            <div className="bg-white rounded-2xl shadow-lg p-6 flex flex-col h-full">
-              <h2 className="text-2xl font-bold">AI Assistant</h2>
-              <div className="flex-grow mt-6">
+          <div className="lg:col-span-1 flex flex-col relative rounded-2xl shadow-lg overflow-hidden">
+            <div className="absolute inset-0">
+              <AIBackground />
+            </div>
+            <div className="relative z-10 p-6 flex flex-col h-full">
+              <h2 className="text-2xl font-bold text-black mb-6">AI Assistant</h2>
+              <div className="flex-grow">
                 <ChatInterface />
               </div>
             </div>
