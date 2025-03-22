@@ -233,12 +233,9 @@ export default function Content() {
           </div>
 
           {/* Right Panel - AI Chat */}
-          <div className="lg:col-span-1 flex flex-col relative rounded-2xl shadow-lg overflow-hidden">
-            <div className="absolute inset-0">
-              <AIBackground />
-            </div>
+          <div className="lg:col-span-1 flex flex-col relative rounded-2xl shadow-lg overflow-hidden bg-white/90 backdrop-blur-sm">
             <div className="relative z-10 p-6 flex flex-col h-full">
-              <h2 className="text-2xl font-bold text-black mb-6">AI Assistant</h2>
+              <h2 className="text-2xl font-bold text-gray-800 mb-6">AI Assistant</h2>
               <div className="flex-grow">
                 <ChatInterface />
               </div>
