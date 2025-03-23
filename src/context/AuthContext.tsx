@@ -1,17 +1,13 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState } from 'react';
-
-interface User {
-  email: string;
-  name: string;
-}
+import { useUser } from '@auth0/nextjs-auth0/client';
 
 interface AuthContextType {
-  user: User | null;
+  user: any | null;
   isLoading: boolean;
   isAuthenticated: boolean;
-  login: (email: string) => void;
+  login: () => void;
   logout: () => void;
 }
 
@@ -24,30 +20,19 @@ const AuthContext = createContext<AuthContextType>({
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const { user, isLoading } = useUser();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
-    // Check localStorage for user data
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-    setIsLoading(false);
-  }, []);
+    setIsAuthenticated(!!user);
+  }, [user]);
 
-  const login = (email: string) => {
-    const newUser = {
-      email,
-      name: email.split('@')[0], // Simple name from email
-    };
-    setUser(newUser);
-    localStorage.setItem('user', JSON.stringify(newUser));
+  const login = () => {
+    window.location.href = '/api/auth/login';
   };
 
   const logout = () => {
-    setUser(null);
-    localStorage.removeItem('user');
+    window.location.href = '/api/auth/logout';
   };
 
   return (
@@ -55,7 +40,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       value={{
         user,
         isLoading,
-        isAuthenticated: !!user,
+        isAuthenticated,
         login,
         logout,
       }}

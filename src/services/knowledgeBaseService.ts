@@ -1,5 +1,6 @@
 import { BedrockRuntimeClient, InvokeModelCommand } from '@aws-sdk/client-bedrock-runtime';
 import { KnowledgeBaseQuery, PracticeProblem } from '@/types/problems';
+import { MODEL_ID } from '@/config/aws';
 
 const bedrockClient = new BedrockRuntimeClient({
   region: process.env.AWS_REGION || 'us-east-1',
@@ -14,12 +15,16 @@ export async function generateProblem(query: KnowledgeBaseQuery): Promise<Practi
   try {
     const prompt = `
       Generate a coding practice problem based on the following context:
-      Week: ${query.weekNumber}
-      ${query.topics ? `Topics: ${query.topics.join(', ')}` : ''}
-      ${query.difficulty ? `Difficulty: ${query.difficulty}` : ''}
+      Content: ${query.text}
+      ${query.metadata ? `
+      Type: ${query.metadata.contentType}
+      Number: ${query.metadata.contentNumber}
+      Difficulty: ${query.metadata.difficulty}
+      Problem Type: ${query.metadata.problemType}
+      ` : ''}
       
       The problem should:
-      1. Be relevant to the week's content
+      1. Be relevant to the content
       2. Include a clear description
       3. Have appropriate difficulty
       4. Include test cases
@@ -29,7 +34,7 @@ export async function generateProblem(query: KnowledgeBaseQuery): Promise<Practi
     `;
 
     const command = new InvokeModelCommand({
-      modelId: 'anthropic.claude-v2',
+      modelId: MODEL_ID,
       body: JSON.stringify({
         prompt: `\n\nHuman: ${prompt}\n\nAssistant:`,
         max_tokens_to_sample: 1000,

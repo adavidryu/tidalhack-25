@@ -1,16 +1,22 @@
+export interface TestCase {
+  input: string;
+  output: string;
+}
+
 export interface PracticeProblem {
   id: string;
   title: string;
   description: string;
   difficulty: 'easy' | 'medium' | 'hard';
-  category: string;
+  category: 'week' | 'exam' | 'introduction';
   weekNumber: number;
   hints: string[];
-  sampleSolution?: string;
-  testCases?: {
-    input: string;
-    output: string;
-  }[];
+  testCases: TestCase[];
+}
+
+export interface Problem extends PracticeProblem {
+  correctAnswer: string;
+  explanation?: string;
 }
 
 export interface WeekContent {
@@ -22,7 +28,10 @@ export interface WeekContent {
 }
 
 export interface KnowledgeBaseQuery {
-  weekNumber: number;
-  topics?: string[];
-  difficulty?: 'easy' | 'medium' | 'hard';
+  text: string;
+  metadata: {
+    contentType: string;
+    contentNumber: string | number;
+    difficulty: string;
+  };
 } 
