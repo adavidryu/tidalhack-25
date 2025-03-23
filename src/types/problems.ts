@@ -33,5 +33,6 @@ export interface KnowledgeBaseQuery {
     contentType: string;
     contentNumber: string | number;
     difficulty: string;
+    problemType: 'MCQ' | 'FRQ';
   };
 } 
