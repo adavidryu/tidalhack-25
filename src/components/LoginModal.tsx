@@ -10,14 +10,13 @@ interface LoginModalProps {
 }
 
 export default function LoginModal({ isOpen, onClose, mode }: LoginModalProps) {
-  const [email, setEmail] = useState('');
   const { login } = useAuth();
 
   if (!isOpen) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    login(email);
+    login();
     onClose();
   };
 
@@ -35,8 +34,6 @@ export default function LoginModal({ isOpen, onClose, mode }: LoginModalProps) {
             <input
               type="email"
               id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
               required
             />
