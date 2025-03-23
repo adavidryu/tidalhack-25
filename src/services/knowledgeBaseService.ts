@@ -3,7 +3,7 @@ import { KnowledgeBaseQuery, PracticeProblem } from '@/types/problems';
 import { MODEL_ID } from '@/config/aws';
 
 const bedrockClient = new BedrockRuntimeClient({
-  region: process.env.AWS_REGION || 'us-east-1',
+  region: process.env.AWS_REGION || 'us-west-2',
   credentials: {
     accessKeyId: process.env.AWS_ACCESS_KEY_ID || '',
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || '',

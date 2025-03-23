@@ -52,14 +52,14 @@ export default function Content() {
   const [currentProblem, setCurrentProblem] = useState<PracticeProblem | null>({
     id: 'placeholder',
     title: 'Welcome to Programmy',
-    description: 'Your AI-powered programming practice companion for CSCE 120. Select a week or exam, choose your preferred difficulty and problem type (MCQ or FRQ), then click "Generate New Problem" to start practicing.',
+    description: 'Your AI-powered programming practice companion for CSCE 120. Select a week or exam, choose your preferred difficulty and problem type, then click "Generate New Problem" to start practicing.',
     difficulty: 'medium',
     category: 'introduction',
     weekNumber: 1,
     hints: [
       'Start with easier problems to build confidence',
       'Use the AI Assistant for help when stuck',
-      'Try both MCQ and FRQ formats for comprehensive practice'
+      'Try both formats for comprehensive practice'
     ],
     testCases: []
   });
