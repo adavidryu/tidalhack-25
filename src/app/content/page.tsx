@@ -4,7 +4,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import ChatInterface from '@/components/ChatInterface';
-import { PracticeProblem } from '@/types/problems';
+import { PracticeProblem, Problem } from '@/types/problems';
 import Image from 'next/image';
 
 interface ContentChunk {
@@ -18,30 +18,30 @@ interface ContentChunk {
 }
 
 class LectureService {
+  private knowledgeBaseId: string;
+
+  constructor() {
+    this.knowledgeBaseId = process.env.AWS_KNOWLEDGE_BASE_ID || '';
+  }
+
   async generateProblem(
     weekId: number | string,
     difficulty: 'easy' | 'medium' | 'hard',
     problemType: 'MCQ' | 'FRQ'
   ): Promise<Problem> {
-    // Get relevant chunks from Knowledge Base
-    const knowledgeBaseCommand = new RetrieveCommand({
-      knowledgeBaseId: this.knowledgeBaseId,
-      retrievalQuery: {
-        text: `${typeof weekId === 'string' ? 'exam' : 'week'} ${weekId} ${difficulty}`,
-        metadata: {
-          contentType: typeof weekId === 'string' ? 'exam' : 'week',
-          contentNumber: typeof weekId === 'string' ? weekId.replace('exam', '') : weekId,
-          difficulty: difficulty
-        }
-      },
-      retrievalConfiguration: {
-        vectorSearchConfiguration: {
-          numberOfResults: 5
-        }
-      }
-    });
-
-    // Rest of the code remains the same...
+    // For now, return a placeholder problem
+    return {
+      id: 'placeholder',
+      title: `Practice Problem - ${difficulty}`,
+      description: 'This is a placeholder problem. The actual problem generation will be implemented with AWS Bedrock.',
+      difficulty,
+      category: typeof weekId === 'string' ? 'exam' : 'week',
+      weekNumber: typeof weekId === 'string' ? parseInt(weekId.replace('exam', '')) : weekId,
+      hints: ['This is a placeholder hint'],
+      testCases: [],
+      correctAnswer: 'Placeholder answer',
+      explanation: 'This is a placeholder explanation'
+    };
   }
 }
 
@@ -67,7 +67,7 @@ export default function Content() {
   const [selectedDifficulty, setSelectedDifficulty] = useState<'easy' | 'medium' | 'hard'>('medium');
   const [problemType, setProblemType] = useState<'MCQ' | 'FRQ'>('FRQ');
   const [isGenerating, setIsGenerating] = useState(false);
-  const [answer, setAnswer] = useState('');
+  const [answer, setAnswer] = useState(''); 
   const [isVerifying, setIsVerifying] = useState(false);
   const [verificationStatus, setVerificationStatus] = useState<'correct' | 'incorrect' | null>(null);
   const [isRateLimited, setIsRateLimited] = useState(false);
