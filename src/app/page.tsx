@@ -2,60 +2,50 @@
 
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import LoginModal from '@/components/LoginModal';
+import Image from 'next/image';
+import { useEffect } from 'react';
 
-export default function Home() {
-  const { isAuthenticated, isLoading } = useAuth();
+export default function LandingPage() {
+  const { login, isAuthenticated } = useAuth();
   const router = useRouter();
-  const [showModal, setShowModal] = useState(false);
-  const [modalMode, setModalMode] = useState<'login' | 'signup'>('login');
 
   useEffect(() => {
-    if (isAuthenticated && !isLoading) {
+    if (isAuthenticated) {
       router.replace('/content');
     }
-  }, [isAuthenticated, isLoading, router]);
+  }, [isAuthenticated, router]);
 
-  const handleLoginClick = () => {
-    setModalMode('login');
-    setShowModal(true);
-  };
-
-  const handleSignUpClick = () => {
-    setModalMode('signup');
-    setShowModal(true);
-  };
-
-  if (isLoading || isAuthenticated) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
-      </div>
-    );
+  if (isAuthenticated) {
+    return null;
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-white">
       {/* Navigation */}
-      <nav className="fixed w-full top-0 bg-white/80 backdrop-blur-sm z-50 border-b border-gray-100">
+      <nav className="fixed w-full top-0 bg-white/80 backdrop-blur-md shadow-sm z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <div className="flex-shrink-0">
-              <span className="text-xl font-bold">LOGO</span>
+            <div className="flex items-center">
+              <Image
+                src="/icon.png"
+                alt="Programmy Logo"
+                width={144}
+                height={144}
+                className="mr-4"
+              />
             </div>
-            <div className="flex gap-4">
-              <button 
-                onClick={handleSignUpClick}
-                className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900"
+            <div className="flex items-center gap-4">
+              <button
+                onClick={login}
+                className="px-6 py-2 bg-purple-600 text-white rounded-full font-medium hover:bg-purple-700 transition-all duration-200"
               >
-                SIGN UP
+                Sign In
               </button>
               <button
-                onClick={handleLoginClick}
-                className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900"
+                onClick={login}
+                className="px-6 py-2 border-2 border-purple-600 text-purple-600 rounded-full font-medium hover:bg-purple-50 transition-all duration-200"
               >
-                LOGIN
+                Sign Up
               </button>
             </div>
           </div>
@@ -63,53 +53,70 @@ export default function Home() {
       </nav>
 
       {/* Hero Section */}
-      <main className="pt-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center py-20 lg:py-32">
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-6">
-              An AI Intro to Programming Assistant
+      <div className="pt-32 pb-16 px-4">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center">
+            <h1 className="text-5xl font-bold mb-6">
+              <span className="bg-gradient-to-r from-purple-600 to-[#3ff9ed] bg-clip-text text-transparent">
+                Master Programming
+              </span>
+              <br />
+              with AI-Powered Practice
             </h1>
-            <p className="text-lg sm:text-xl text-gray-600 mb-12 max-w-3xl mx-auto">
-              Reinforce your in-class learning with formatted practice problems and an AI that understands you
+            <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+              Your personalized programming companion for CSCE 120. Practice with AI-generated problems, get instant feedback, and improve your skills.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button className="inline-flex items-center px-6 py-3 border border-gray-300 text-base font-medium rounded-full text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
-                See features
-              </button>
-              <button
-                onClick={handleSignUpClick}
-                className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-full text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
-              >
-                Start learning
-              </button>
-            </div>
+            <button
+              onClick={login}
+              className="px-8 py-3 bg-purple-600 text-white rounded-full font-medium text-lg hover:bg-purple-700 transition-all duration-200"
+            >
+              Get Started
+            </button>
           </div>
+        </div>
+      </div>
 
-          {/* Demo Section */}
-          <div className="py-12">
-            <div className="bg-gray-100 rounded-2xl overflow-hidden shadow-xl">
-              {/* Placeholder for video/demo content */}
-              <div className="aspect-video bg-gray-200 w-full">
-                <div className="w-full h-full flex items-center justify-center text-gray-400">
-                  Demo Video/Content
-                </div>
+      {/* Features Section */}
+      <div className="py-16 px-4 bg-white/50">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="p-6 rounded-2xl bg-white shadow-sm hover:shadow-md transition-shadow duration-200">
+              <div className="w-12 h-12 bg-white border-2 border-gray-200 rounded-lg flex items-center justify-center mb-4">
+                <svg className="w-6 h-6 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                </svg>
               </div>
-              {/* Author tag */}
-              <div className="p-4 flex justify-end">
-                <div className="inline-flex items-center bg-red-500 text-white px-3 py-1 rounded-full text-sm">
-                  Adam Ryu
-                </div>
+              <h3 className="text-xl font-semibold mb-2">AI-Generated Problems</h3>
+              <p className="text-gray-600">Practice with dynamically generated problems tailored to your skill level and week content.</p>
+            </div>
+            <div className="p-6 rounded-2xl bg-white shadow-sm hover:shadow-md transition-shadow duration-200">
+              <div className="w-12 h-12 bg-white border-2 border-gray-200 rounded-lg flex items-center justify-center mb-4">
+                <svg className="w-6 h-6 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                </svg>
               </div>
+              <h3 className="text-xl font-semibold mb-2">AI Assistant</h3>
+              <p className="text-gray-600">Get instant help and explanations from our AI assistant when you're stuck.</p>
+            </div>
+            <div className="p-6 rounded-2xl bg-white shadow-sm hover:shadow-md transition-shadow duration-200">
+              <div className="w-12 h-12 bg-white border-2 border-gray-200 rounded-lg flex items-center justify-center mb-4">
+                <svg className="w-6 h-6 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold mb-2">Multiple Formats</h3>
+              <p className="text-gray-600">Practice with both MCQ and FRQ formats to prepare for exams and assignments.</p>
             </div>
           </div>
         </div>
-      </main>
+      </div>
 
-      <LoginModal
-        isOpen={showModal}
-        onClose={() => setShowModal(false)}
-        mode={modalMode}
-      />
+      {/* Footer */}
+      <footer className="py-8 px-4 bg-white/80">
+        <div className="max-w-7xl mx-auto text-center text-gray-600">
+          <p>© 2025 Programmy. All rights reserved.</p>
+        </div>
+      </footer>
     </div>
   );
 }

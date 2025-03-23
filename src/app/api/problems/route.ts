@@ -5,26 +5,43 @@ const lectureService = new LectureService();
 
 export async function POST(request: Request) {
   try {
-    const { weekNumber, difficulty, topics } = await request.json();
+    const body = await request.json();
+    console.log('Received request body:', body);
+    
+    const { weekId, difficulty, problemType } = body;
 
-    if (!weekNumber || !difficulty || !topics) {
+    if (!weekId || !difficulty) {
+      console.log('Missing required parameters:', { weekId, difficulty });
       return NextResponse.json(
-        { error: 'Missing required parameters' },
+        { error: 'Missing required parameters', received: { weekId, difficulty } },
         { status: 400 }
       );
     }
 
+    console.log('Generating problem with:', { weekId, difficulty, problemType });
+    
+    // Generate problem using both S3 and Knowledge Base
     const problem = await lectureService.generateProblem(
-      weekNumber,
+      weekId,
       difficulty,
-      topics
+      problemType
     );
 
+    console.log('Successfully generated problem:', problem);
     return NextResponse.json(problem);
   } catch (error: any) {
-    console.error('Error generating problem:', error);
+    console.error('Detailed error in problem generation:', {
+      message: error.message,
+      stack: error.stack,
+      name: error.name
+    });
+    
     return NextResponse.json(
-      { error: 'Failed to generate problem', details: error?.message || 'Unknown error' },
+      { 
+        error: 'Failed to generate problem', 
+        details: error?.message || 'Unknown error',
+        type: error?.name || 'Unknown error type'
+      },
       { status: 500 }
     );
   }
@@ -33,14 +50,24 @@ export async function POST(request: Request) {
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const weekNumber = parseInt(searchParams.get('week') || '1');
+    const weekId = searchParams.get('week') || '1';
 
-    const topics = await lectureService.getAvailableTopics(weekNumber);
+    console.log('Fetching topics for week:', weekId);
+    const topics = await lectureService.getAvailableTopics(parseInt(weekId));
     return NextResponse.json(topics);
   } catch (error: any) {
-    console.error('Error fetching topics:', error);
+    console.error('Error fetching topics:', {
+      message: error.message,
+      stack: error.stack,
+      name: error.name
+    });
+    
     return NextResponse.json(
-      { error: 'Failed to fetch topics', details: error?.message || 'Unknown error' },
+      { 
+        error: 'Failed to fetch topics', 
+        details: error?.message || 'Unknown error',
+        type: error?.name || 'Unknown error type'
+      },
       { status: 500 }
     );
   }
