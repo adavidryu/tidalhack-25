@@ -4,7 +4,6 @@ import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import ChatInterface from '@/components/ChatInterface';
-import AIBackground from '@/components/AIBackground';
 import { PracticeProblem } from '@/types/problems';
 
 export default function Content() {
@@ -237,7 +236,12 @@ export default function Content() {
             <div className="relative z-10 p-6 flex flex-col h-full">
               <h2 className="text-2xl font-bold text-gray-800 mb-6">AI Assistant</h2>
               <div className="flex-grow">
-                <ChatInterface />
+                <ChatInterface 
+                  currentProblem={currentProblem}
+                  currentWeek={currentWeek}
+                  selectedDifficulty={selectedDifficulty}
+                  selectedTopics={selectedTopics}
+                />
               </div>
             </div>
           </div>
