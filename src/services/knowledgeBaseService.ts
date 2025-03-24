@@ -30,7 +30,19 @@ export async function generateProblem(query: KnowledgeBaseQuery): Promise<Practi
       4. Include test cases
       5. Include hints
       
-      Format the response as a JSON object matching the PracticeProblem interface.
+      IMPORTANT: Your response must be a valid JSON object that matches this interface:
+      {
+        "id": string,
+        "title": string,
+        "description": string,
+        "difficulty": "easy" | "medium" | "hard",
+        "category": "week" | "exam" | "introduction",
+        "weekNumber": number,
+        "hints": string[],
+        "testCases": { "input": string, "output": string }[]
+      }
+      
+      Do not include any text before or after the JSON object. Only return the JSON object.
     `;
 
     const command = new InvokeModelCommand({
@@ -45,9 +57,40 @@ export async function generateProblem(query: KnowledgeBaseQuery): Promise<Practi
 
     const response = await bedrockClient.send(command);
     const responseBody = JSON.parse(new TextDecoder().decode(response.body));
-    return JSON.parse(responseBody.completion);
+    
+    // Extract the JSON from the completion text
+    const completionText = responseBody.completion.trim();
+    const jsonMatch = completionText.match(/\{[\s\S]*\}/);
+    
+    if (!jsonMatch) {
+      throw new Error('No valid JSON found in the response');
+    }
+    
+    const problem = JSON.parse(jsonMatch[0]);
+    
+    // Validate required fields
+    const requiredFields = ['id', 'title', 'description', 'difficulty', 'category', 'weekNumber', 'hints', 'testCases'];
+    for (const field of requiredFields) {
+      if (!(field in problem)) {
+        throw new Error(`Missing required field: ${field}`);
+      }
+    }
+    
+    return problem;
   } catch (error) {
     console.error('Error generating problem:', error);
-    throw error;
+    // Return a fallback problem if generation fails
+    return {
+      id: 'fallback-' + Date.now(),
+      title: 'Example Problem',
+      description: 'This is a fallback problem. Please try generating a new problem.',
+      difficulty: 'medium',
+      category: 'week',
+      weekNumber: 1,
+      hints: ['This is a fallback hint'],
+      testCases: [
+        { input: 'example input', output: 'example output' }
+      ]
+    };
   }
 } 
